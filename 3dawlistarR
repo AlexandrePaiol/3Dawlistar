@@ -1,0 +1,72 @@
+<?php
+$sigla = "";
+$carga = "";
+$nome = "";
+$msg = "";
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $subject_name = $_POST["subject_name"];
+    $subject_code = $_POST["subject_code"];
+    $credit_hours = $_POST["credit_hours"];
+    $description = $_POST["description"];
+
+    if (empty($subject_name) || empty($subject_code) || empty($credit_hours)) {
+        $msg = "Preencha todos os campos obrigatórios!";
+    } else {
+        $file_subjects = fopen("subjects.txt", "a") or die("Erro ao abrir o arquivo");
+        $line = "$subject_name;$subject_code;$credit_hours;$description\n";
+        fwrite($file_subjects, $line);
+        fclose($file_subjects);
+        $msg = "Disciplina criada com sucesso!";
+    }
+}
+
+$linhas = [];
+
+$arquivoAlunoIn = fopen("disciplinas.txt", "r") or die("Erro ao abrir o arquivo");
+$x = 0;
+while (!feof($arquivoAlunoIn)) {
+    $linhas[] = fgets($arquivoAlunoIn);
+    $colunaDados = explode(";", $linhas[$x]);
+    $nome = $colunaDados[0];
+    $sigla = $colunaDados[1];
+    $carga = $colunaDados[2];
+    $x++;
+}
+fclose($arquivoAlunoIn);
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<h1>Criar Nova Disciplina</h1>
+<table>
+    <tr>
+        <th>Nome</th>
+        <th>Sigla</th>
+        <th>Carga</th>
+    </tr>
+    <?php
+    $x = 0;
+    foreach ($linhas as $linha) {
+        $colunaDados = explode(";", $linha);
+        $nome = $colunaDados[0];
+        $sigla = $colunaDados[1];
+        $carga = $colunaDados[2];
+    ?>
+    <tr>
+        <td><?php echo $nome ?></td>
+        <td><?php echo $sigla ?></td>
+        <td><?php echo $carga ?></td>
+    </tr>
+    <?php
+        $x++;
+    }
+    ?>
+</table>
+<p><?php echo $msg ?></p>
+<br>
+</body>
+</html>
